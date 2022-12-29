@@ -1,0 +1,129 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+struct pro
+{
+  int max[10];
+  int allocated[10];
+  int need[10];
+};
+
+//int n,r;
+void input(struct pro process[],int available[],int n,int r)
+{
+  for(int i=0;i<n;i++){
+    printf("Enter process[%d] info\n",i);
+    printf("Enter Maximum Need: ");
+    for(int j=0;j<r;j++){
+      scanf("%d",&process[i].max[j]);
+    }
+    printf("Enter No. of Allocated Resources for this process: ");
+    for(int j=0;j<r;j++){
+      scanf("%d",&process[i].allocated[j]);  
+      process[i].need[j]= process[i].max[j] - process[i].allocated[j];
+      }
+    }
+    printf("Enter Available Resources: ");
+    for(int i=0;i<r;i++){
+      scanf("%d",&available[i]);
+    }
+}
+
+void showTheInfo(struct pro process[],int n,int r)
+{
+    printf("\nPID\tMaximum\t\tAllocated\tNeed\n");
+    for(int i=0;i<n;i++){
+      printf("P[%d]\t",i);
+      for(int j=0;j<r;j++){
+        printf("%d ",process[i].max[j]);
+      }
+      printf("\t\t");
+      for(int j=0;j<r;j++){
+        printf("%d ",process[i].allocated[j]);
+      } 
+      printf("\t\t");
+      for(int j=0;j<r;j++){
+        printf("%d ",process[i].need[j]);
+      }
+      printf("\n");
+    }
+}
+
+bool applySafetyAlgo(struct pro process[],int available[],int safeSequence[],int n,int r)
+{
+  bool finish[n];
+  int work[r];  
+  for(int i=0;i<r;i++){
+    work[i]=available[i];      
+  }
+  for(int i=0;i<n;i++){
+    finish[i]=false;    
+  }
+  bool proceed=true;
+  int k=0;
+  while(proceed){
+    proceed=false;
+    //need < available
+    for(int i=0;i<n;i++){    
+      bool flag=true;
+      if(finish[i]==false){
+        for(int j=0;j<r;j++){
+          if(process[i].need[j] <= work[j]){
+            continue;
+          }
+          else{
+            flag=false;
+            break;
+          }
+        }
+        //To check next process
+        if(flag==false){
+             continue;
+        }
+        for(int j=0;j<r;j++){   
+          work[j]=work[j]+ process[i].allocated[j];
+        }
+        finish[i]=true;
+        safeSequence[k++]=i;
+        proceed=true;  
+      }
+    }
+  }
+  int count;
+  for(count=0;count<n&&finish[count]==true;count++){
+       continue;
+  }
+  if(count==n)
+    return true;
+  else
+    return false;
+}
+
+int main()
+{
+  int n,r;
+  printf("\nName: Bhavya Shastri \nSection:B \nStd ID:200121266\n");
+  printf("\nEnter No of Process: ");
+  scanf("%d",&n);
+  printf("\nEnter No of Resource Instances in system: ");
+  scanf("%d",&r);
+  int available[r];
+  int safeSequence[n];
+  struct pro process[n]; 
+  input(process,available,n,r);
+  printf("\n");
+  showTheInfo(process,n,r);
+  printf("\n");
+  if(applySafetyAlgo(process,available,safeSequence,n,r))
+  {
+    printf("\nSystem is in SAFE State\n");
+    printf("Safe Sequence is: ");
+    for(int i=0;i<n;i++){
+      printf("P[%d] ",safeSequence[i]);
+    }
+  }
+  else{
+    printf("\nSystem is in UNSAFE State\n");
+    return 0;
+  }
+}
